@@ -122,6 +122,56 @@ button:disabled {
   cursor: not-allowed;
 }
 
+.hint {
+  flex-basis: 100%;
+  margin: 0 0 1rem;
+  text-align: center;
+  color: #3f3f3f;
+}
+
+.confirm {
+  width: min(90vw, 32rem);
+  padding: 1.5rem 1rem 0.5rem;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  overscroll-behavior: contain;
+}
+
+.confirm::backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.confirm h2 {
+  margin: 0 0 0.5rem;
+}
+
+.confirm p {
+  margin: 0;
+}
+
+.confirm__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.confirm__actions button {
+  margin: 1rem 0.5rem;
+}
+
+.button--danger {
+  background-color: #880017;
+  border-color: #880017;
+}
+
+.button--danger:hover,
+.button--danger:active {
+  background-color: #a8001d;
+  border-color: #a8001d;
+}
+
 #log ul {
   list-style: none;
   margin: 0;

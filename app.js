@@ -33,8 +33,15 @@ const app = Vue.createApp({
             }
             return{width: (this.monsterHealth/this.monsterTotalHealth)*100+'%'};
         },
-        useSpecialAttack(){
+        specialAttackLocked(){
             return this.currentRound % 3 !== 0;
+        },
+        specialAttackHint(){
+            if(!this.specialAttackLocked){
+                return 'Special Attack is ready.';
+            }
+            const roundsLeft = 3 - (this.currentRound % 3);
+            return 'Special Attack is available every 3 rounds: ' + roundsLeft + (roundsLeft === 1 ? ' round' : ' rounds') + ' to go.';
         }
     },
     watch:{
@@ -47,6 +54,12 @@ const app = Vue.createApp({
             if(value<=0){
                 this.winner = 'player';
             }
+        },
+        winner(value){
+            // Keep keyboard focus on a usable button when the controls change.
+            this.$nextTick(() => {
+                (value ? this.$refs.newGameButton : this.$refs.attackButton).focus();
+            });
         }
     },
     methods: {
@@ -83,6 +96,19 @@ const app = Vue.createApp({
             }
             this.log.push('You heal yourself!')
             this.attackPlayer();
+        },
+        openSurrenderDialog(){
+            const dialog = this.$refs.surrenderDialog;
+            dialog.returnValue = '';
+            dialog.showModal();
+        },
+        onSurrenderDialogClose(){
+            // Escape and "Keep Fighting" both cancel; only the explicit button surrenders.
+            if(this.$refs.surrenderDialog.returnValue === 'confirm'){
+                this.surrenderPlayer();
+            } else {
+                this.$refs.surrenderButton.focus();
+            }
         },
         surrenderPlayer(){
             this.log.push('You just surrender!')

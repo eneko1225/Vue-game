@@ -55,15 +55,37 @@
           <h2>Game Over!</h2>
           <h3 v-if="winner === 'player'">You won!</h3>
           <h3 v-else>You lose!</h3>
-          <button type="button" @click="startNewGame">Start New Game</button>
+          <button type="button" ref="newGameButton" @click="startNewGame">Start New Game</button>
         </section>
       </div>
       <section id="controls" aria-label="Actions">
-        <button type="button" @click="attackMonster">Attack</button>
-        <button type="button" :disabled="useSpecialAttack" @click="specialAttackMonster">Special Attack</button>
-        <button type="button" @click="healPlayer">Heal</button>
-        <button type="button" @click="surrenderPlayer">Surrender</button>
+        <button type="button" ref="attackButton" :disabled="!!winner" @click="attackMonster">Attack</button>
+        <button
+          type="button"
+          :disabled="!!winner || specialAttackLocked"
+          aria-describedby="special-hint"
+          @click="specialAttackMonster"
+        >Special Attack</button>
+        <button type="button" :disabled="!!winner" @click="healPlayer">Heal</button>
+        <button type="button" ref="surrenderButton" :disabled="!!winner" @click="openSurrenderDialog">Surrender</button>
+        <p id="special-hint" class="hint" v-show="!winner">{{ specialAttackHint }}</p>
       </section>
+      <dialog
+        ref="surrenderDialog"
+        class="confirm"
+        aria-labelledby="surrender-title"
+        aria-describedby="surrender-desc"
+        @close="onSurrenderDialogClose"
+      >
+        <form method="dialog">
+          <h2 id="surrender-title">Surrender?</h2>
+          <p id="surrender-desc">The monster will win this battle.</p>
+          <div class="confirm__actions">
+            <button type="submit" value="cancel" autofocus>Keep Fighting</button>
+            <button type="submit" value="confirm" class="button--danger">Surrender</button>
+          </div>
+        </form>
+      </dialog>
       <section id="log" class="container">
         <h2 id="log-label">Battle Log</h2>
         <ul role="log" aria-labelledby="log-label">
