@@ -4,10 +4,11 @@ function getRandomInt(max) {
 
 const app = Vue.createApp({
     data() {
+        const monsterHealth = 100 + getRandomInt(100);
         return {
             playerHealth: 100,
-            monsterHealth: 100 + getRandomInt(100),
-            monsterTotalHealth: 0,
+            monsterHealth: monsterHealth,
+            monsterTotalHealth: monsterHealth,
             currentRound: 0,
             winner: null,
             log: []
@@ -47,13 +48,11 @@ const app = Vue.createApp({
           this.currentRound = 0;
           this.playerHealth = 100;
           this.monsterHealth= 100 + getRandomInt(100);
+          this.monsterTotalHealth = this.monsterHealth;
           this.winner = null;
           this.log = [];
         },
         attackMonster(){
-            if (this.currentRound === 0) {
-                this.monsterTotalHealth = this.monsterHealth;
-            }
             this.currentRound++;
             this.monsterHealth -= getRandomInt(10);
             this.log.push('You attacked!')
