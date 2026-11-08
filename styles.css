@@ -4,6 +4,28 @@
 
 html {
   font-family: 'Jost', sans-serif;
+  color-scheme: light;
+}
+
+[v-cloak] {
+  display: none;
+}
+
+.skip-link {
+  position: absolute;
+  left: 0.5rem;
+  top: -10rem;
+  z-index: 1;
+  padding: 0.5rem 1rem;
+  background-color: white;
+  color: #880017;
+  border-radius: 12px;
+}
+
+.skip-link:focus-visible {
+  top: 0.5rem;
+  outline: 3px solid #88005b;
+  outline-offset: 2px;
 }
 
 body {
@@ -52,6 +74,10 @@ section {
   margin: 0.25rem;
 }
 
+.health-value {
+  font-variant-numeric: tabular-nums;
+}
+
 #controls {
   display: flex;
   flex-direction: row;
@@ -71,10 +97,14 @@ button {
   width: 12rem;
   cursor: pointer;
   box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.26);
+  text-transform: uppercase;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
-button:focus {
-  outline: none;
+button:focus-visible {
+  outline: 3px solid #880017;
+  outline-offset: 3px;
 }
 
 button:hover,

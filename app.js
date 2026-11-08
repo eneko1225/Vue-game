@@ -15,6 +15,12 @@ const app = Vue.createApp({
         };
     },
     computed:{
+        playerHealthValue(){
+            return Math.max(this.playerHealth, 0);
+        },
+        monsterHealthValue(){
+            return Math.max(this.monsterHealth, 0);
+        },
         playerLifeStyle(){
             if(this.playerHealth <= 0){
                 return {width: '0%'};
