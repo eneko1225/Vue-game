@@ -13,6 +13,8 @@ const PAUSE_MS = 150;
 const MONSTER_HIT_MS = 250; // middle of the 0.5 s monster lunge
 const RECOVER_MS = 500;     // knight-hit is 15 frames
 
+const SPECIAL_COOLDOWN = 3; // turns the Special Attack stays locked after using it
+
 let fxId = 0;
 
 const app = Vue.createApp({
@@ -22,7 +24,7 @@ const app = Vue.createApp({
             playerHealth: 100,
             monsterHealth: monsterHealth,
             monsterTotalHealth: monsterHealth,
-            currentRound: 0,
+            specialCooldown: 0,
             winner: null,
             log: [],
             busy: false,
@@ -52,14 +54,14 @@ const app = Vue.createApp({
             return{width: (this.monsterHealth/this.monsterTotalHealth)*100+'%'};
         },
         specialAttackLocked(){
-            return this.currentRound % 3 !== 0;
+            return this.specialCooldown > 0;
         },
         specialAttackHint(){
             if(!this.specialAttackLocked){
                 return 'Special Attack is ready.';
             }
-            const roundsLeft = 3 - (this.currentRound % 3);
-            return 'Special Attack is available every 3 rounds: ' + roundsLeft + (roundsLeft === 1 ? ' round' : ' rounds') + ' to go.';
+            const roundsLeft = this.specialCooldown;
+            return 'Special Attack is recharging: ' + roundsLeft + (roundsLeft === 1 ? ' round' : ' rounds') + ' to go.';
         }
     },
     watch:{
@@ -83,7 +85,7 @@ const app = Vue.createApp({
     methods: {
         startNewGame(){
           if(this.busy) return;
-          this.currentRound = 0;
+          this.specialCooldown = 0;
           this.playerHealth = 100;
           this.monsterHealth= 100 + getRandomInt(100);
           this.monsterTotalHealth = this.monsterHealth;
@@ -98,7 +100,10 @@ const app = Vue.createApp({
             this.takeTurn(() => this.strikeMonster(getRandomInt(10), 'You attacked!', 'damage'));
         },
         specialAttackMonster(){
-            this.takeTurn(() => this.strikeMonster(getRandomInt(15), 'You made a superattack!', 'special'));
+            this.takeTurn(() => {
+                this.specialCooldown = SPECIAL_COOLDOWN;
+                return this.strikeMonster(getRandomInt(15), 'You made a superattack!', 'special');
+            });
         },
         healPlayer(){
             this.takeTurn(async () => {
@@ -115,7 +120,7 @@ const app = Vue.createApp({
             // Buttons stay enabled (and focused) while the turn plays out; extra clicks are ignored.
             if(this.busy || this.winner) return;
             this.busy = true;
-            this.currentRound++;
+            this.specialCooldown = Math.max(this.specialCooldown - 1, 0);
             await playerMove();
             if(!this.winner){
                 await wait(PAUSE_MS);
