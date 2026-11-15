@@ -13,6 +13,9 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
+    <link rel="preload" as="image" href="assets/knight-attack.webp" />
+    <link rel="preload" as="image" href="assets/knight-hit.webp" />
+    <link rel="preload" as="image" href="assets/knight-death.webp" />
     <script src="https://unpkg.com/vue@3.5.45/dist/vue.global.prod.js" defer></script>
     <script src="app.js" defer></script>
   </head>
@@ -22,6 +25,16 @@
       <h1 translate="no">Monster Slayer</h1>
     </header>
     <main id="game" v-cloak>
+      <section class="stage" aria-hidden="true">
+        <div class="fighter fighter--player" :class="'pose-' + playerPose">
+          <div class="knight" :key="playerPose"></div>
+          <span v-if="playerFx" :key="playerFx.id" class="fx" :class="'fx--' + playerFx.kind">{{ playerFx.text }}</span>
+        </div>
+        <div class="fighter fighter--monster" :class="'pose-' + monsterPose">
+          <img class="monster" src="assets/monster.png" alt="" width="401" height="343" />
+          <span v-if="monsterFx" :key="monsterFx.id" class="fx" :class="'fx--' + monsterFx.kind">{{ monsterFx.text }}</span>
+        </div>
+      </section>
       <section id="monster" class="container">
         <h2 id="monster-health-label">Monster Health</h2>
         <span class="health-value">{{monsterHealthValue}}</span>
@@ -55,19 +68,20 @@
           <h2>Game Over!</h2>
           <h3 v-if="winner === 'player'">You won!</h3>
           <h3 v-else>You lose!</h3>
-          <button type="button" ref="newGameButton" @click="startNewGame">Start New Game</button>
+          <button type="button" ref="newGameButton" :aria-disabled="busy" @click="startNewGame">Start New Game</button>
         </section>
       </div>
       <section id="controls" aria-label="Actions">
-        <button type="button" ref="attackButton" :disabled="!!winner" @click="attackMonster">Attack</button>
+        <button type="button" ref="attackButton" :disabled="!!winner" :aria-disabled="busy" @click="attackMonster">Attack</button>
         <button
           type="button"
           :disabled="!!winner || specialAttackLocked"
+          :aria-disabled="busy"
           aria-describedby="special-hint"
           @click="specialAttackMonster"
         >Special Attack</button>
-        <button type="button" :disabled="!!winner" @click="healPlayer">Heal</button>
-        <button type="button" ref="surrenderButton" :disabled="!!winner" @click="openSurrenderDialog">Surrender</button>
+        <button type="button" :disabled="!!winner" :aria-disabled="busy" @click="healPlayer">Heal</button>
+        <button type="button" ref="surrenderButton" :disabled="!!winner" :aria-disabled="busy" @click="openSurrenderDialog">Surrender</button>
         <p id="special-hint" class="hint" v-show="!winner">{{ specialAttackHint }}</p>
       </section>
       <dialog

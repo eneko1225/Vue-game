@@ -59,6 +59,7 @@ section {
   background-color: #00a876;
   width: 100%;
   height: 100%;
+  transition: width 0.4s ease-out;
 }
 
 .container {
@@ -112,6 +113,10 @@ button:active {
   background-color: #af0a78;
   border-color: #af0a78;
   box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.26);
+}
+
+button[aria-disabled="true"] {
+  cursor: progress;
 }
 
 button:disabled {
@@ -180,6 +185,14 @@ button:disabled {
 
 #log li {
   margin: 0.5rem 0;
+  animation: log-in 0.3s ease-out;
+}
+
+@keyframes log-in {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
 }
 
 .log--player {
@@ -196,4 +209,243 @@ button:disabled {
 
 .log--heal {
   color: green;
+}
+/* Battle stage: knight sprite sheets (one row, 30 fps) and the monster image are in assets/. */
+.stage {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-top: 1rem;
+}
+
+.fighter {
+  position: relative;
+}
+
+.fighter::before {
+  content: '';
+  position: absolute;
+  bottom: -3%;
+  height: 10%;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.12);
+}
+
+.fighter--player {
+  width: 52%;
+}
+
+.fighter--player::before {
+  left: 24%;
+  right: 34%;
+}
+
+.fighter--monster {
+  width: 36%;
+  transform-origin: bottom center;
+}
+
+.fighter--monster::before {
+  left: 8%;
+  right: 8%;
+}
+
+.knight {
+  --frames: 25;
+  aspect-ratio: 392 / 308;
+  /* The frames have empty space under the feet. */
+  margin-bottom: -6%;
+  background: url(assets/knight-idle.webp) 0 0 / calc(var(--frames) * 100%) 100% no-repeat;
+  animation: sprite calc(var(--frames) * 1s / 30) steps(var(--frames), jump-none) infinite;
+}
+
+.pose-attack .knight,
+.pose-hit .knight,
+.pose-death .knight {
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+}
+
+.pose-attack .knight {
+  --frames: 17;
+  background-image: url(assets/knight-attack.webp);
+}
+
+.pose-hit .knight {
+  --frames: 15;
+  background-image: url(assets/knight-hit.webp);
+}
+
+.pose-death .knight {
+  --frames: 21;
+  background-image: url(assets/knight-death.webp);
+}
+
+@keyframes sprite {
+  to {
+    background-position: 100% 0;
+  }
+}
+
+.fighter--player.pose-attack {
+  animation: lunge-right 0.57s ease-in-out;
+}
+
+.fighter--player.pose-heal {
+  animation: heal-glow 0.57s ease-in-out;
+}
+
+.monster {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* The drawing faces right; flip it to face the knight. */
+  transform: scaleX(-1);
+}
+
+.fighter--monster.pose-idle {
+  animation: breathe 2.4s ease-in-out infinite;
+}
+
+.fighter--monster.pose-attack {
+  animation: lunge-left 0.5s ease-in-out;
+}
+
+.fighter--monster.pose-hurt {
+  animation: shake 0.4s linear;
+}
+
+.pose-hurt .monster {
+  animation: flash 0.4s ease-out;
+}
+
+.fighter--monster.pose-dead {
+  opacity: 0.35;
+  filter: grayscale(1);
+  transform: translateY(10%) rotate(-14deg);
+  animation: fall 0.7s ease-in;
+}
+
+@keyframes lunge-right {
+  50% {
+    transform: translateX(12%);
+  }
+}
+
+@keyframes lunge-left {
+  50% {
+    transform: translateX(-35%);
+  }
+}
+
+@keyframes breathe {
+  50% {
+    transform: scale(1.03, 0.97);
+  }
+}
+
+@keyframes shake {
+  20% {
+    transform: translateX(8%);
+  }
+  40% {
+    transform: translateX(-6%);
+  }
+  60% {
+    transform: translateX(4%);
+  }
+  80% {
+    transform: translateX(-2%);
+  }
+}
+
+@keyframes flash {
+  20% {
+    filter: brightness(1.8);
+  }
+}
+
+@keyframes fall {
+  from {
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+}
+
+@keyframes heal-glow {
+  50% {
+    filter: drop-shadow(0 0 0.75rem #00a876) brightness(1.1);
+  }
+}
+
+/* Floating damage / heal numbers. */
+.fx {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 1.75rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 3px white, 0 2px 0 white;
+  pointer-events: none;
+  opacity: 0;
+  animation: fx-float 0.9s ease-out;
+}
+
+.fx--damage {
+  color: #c00020;
+}
+
+.fx--special {
+  color: #c24100;
+  font-size: 2.5rem;
+}
+
+.fx--heal {
+  color: #00875f;
+}
+
+@keyframes fx-float {
+  from {
+    opacity: 0;
+    transform: translateY(30%) scale(0.6);
+  }
+  20% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+  70% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-120%);
+  }
+}
+
+@keyframes fx-fade {
+  from,
+  70% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Keep the short sprite clips and the hit flash; drop idle loops and movement. */
+  .pose-idle .knight,
+  .fighter,
+  #log li {
+    animation: none !important;
+  }
+
+  .fx {
+    animation-name: fx-fade;
+  }
+
+  .healthbar__value {
+    transition: none;
+  }
 }
